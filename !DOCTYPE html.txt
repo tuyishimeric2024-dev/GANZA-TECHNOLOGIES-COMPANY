@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ganza Technologies Solution Ltd</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#f5f5f5;
+}
+
+header{
+    background:black;
+    color:white;
+    padding:15px;
+    display:flex;
+    justify-content:space-between;
+}
+
+header button{
+    padding:8px 12px;
+    cursor:pointer;
+}
+
+.hero{
+    background:linear-gradient(to right,#2563eb,#7c3aed);
+    color:white;
+    text-align:center;
+    padding:60px;
+}
+
+.services{
+    padding:20px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:15px;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 2px 5px rgba(0,0,0,.1);
+    cursor:pointer;
+}
+
+.card:hover{
+    box-shadow:0 4px 12px rgba(0,0,0,.2);
+}
+
+.hidden{
+    display:none;
+}
+
+.product-card{
+    background:white;
+    border-radius:10px;
+    overflow:hidden;
+}
+
+.product-card img{
+    width:100%;
+    height:200px;
+    object-fit:cover;
+}
+
+.product-card .content{
+    padding:10px;
+}
+
+input, textarea, select{
+    width:100%;
+    padding:10px;
+    margin-top:10px;
+    box-sizing:border-box;
+}
+
+button{
+    padding:10px;
+}
+
+.section{
+    padding:20px;
+}
+</style>
+</head>
+<body>
+
+<header>
+    <h2>GTS</h2>
+
+    <div>
+        <button onclick="showHome()">Home</button>
+        <button onclick="showAdmin()">Admin Upload</button>
+    </div>
+</header>
+
+<!-- HOME -->
+<div id="homeView">
+
+    <section class="hero">
+        <h1>Ganza Technologies Solution Ltd</h1>
+        <p>IT Equipment, Software, CCTV, Laptops & Printers</p>
+    </section>
+
+    <section class="services">
+        <h2>Services (Click to view products)</h2>
+
+        <div class="grid">
+
+            <div class="card" onclick="showCategory('laptops')">
+                💻<br><b>Laptops Sales</b>
+            </div>
+
+            <div class="card" onclick="showCategory('printers')">
+                🖨️<br><b>Printers</b>
+            </div>
+
+            <div class="card" onclick="showCategory('cctv')">
+                📷<br><b>CCTV Installation</b>
+            </div>
+
+            <div class="card" onclick="showCategory('software')">
+                🛡️<br><b>Software Solutions</b>
+            </div>
+
+            <div class="card" onclick="showCategory('networking')">
+                📶<br><b>Networking Equipment</b>
+            </div>
+
+        </div>
+    </section>
+
+</div>
+
+<!-- CATEGORY -->
+<div id="categoryView" class="hidden section">
+
+    <button onclick="showHome()">⬅ Back</button>
+
+    <h2 id="categoryTitle"></h2>
+
+    <div id="productList" class="grid"></div>
+
+</div>
+
+<!-- ADMIN -->
+<div id="adminView" class="hidden section">
+
+    <h2>Upload Product</h2>
+
+    <input type="text" id="name" placeholder="Product Name">
+
+    <input type="text" id="price" placeholder="Price">
+
+    <textarea id="specs" placeholder="Specifications"></textarea>
+
+    <select id="category">
+        <option value="laptops">Laptops</option>
+        <option value="printers">Printers</option>
+        <option value="cctv">CCTV</option>
+        <option value="software">Software</option>
+        <option value="networking">Networking</option>
+    </select>
+
+    <input type="file" id="image">
+
+    <button onclick="saveProduct()">Save Product</button>
+
+</div>
+
+<!-- CONTACT -->
+<section class="section">
+
+    <h2>Contact</h2>
+
+    <form onsubmit="sendMessage(event)">
+        <input type="text" placeholder="Name" required>
+        <input type="email" placeholder="Email" required>
+        <textarea placeholder="Message" required></textarea>
+        <button type="submit">Send</button>
+    </form>
+
+    <p>📞 +250 795057212</p>
+
+</section>
+
+<script>
+
+let products = [];
+let currentCategory = "";
+
+function showHome() {
+    homeView.classList.remove("hidden");
+    categoryView.classList.add("hidden");
+    adminView.classList.add("hidden");
+}
+
+function showAdmin() {
+    homeView.classList.add("hidden");
+    categoryView.classList.add("hidden");
+    adminView.classList.remove("hidden");
+}
+
+function showCategory(category) {
+
+    currentCategory = category;
+
+    homeView.classList.add("hidden");
+    adminView.classList.add("hidden");
+    categoryView.classList.remove("hidden");
+
+    categoryTitle.innerText = category.toUpperCase() + " Products";
+
+    renderProducts();
+}
+
+function saveProduct() {
+
+    const file = document.getElementById("image").files[0];
+
+    if (!file) {
+        alert("Select image");
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function(e){
+
+        products.push({
+            name: document.getElementById("name").value,
+            price: document.getElementById("price").value,
+            specs: document.getElementById("specs").value,
+            category: document.getElementById("category").value,
+            image: e.target.result
+        });
+
+        alert("Product saved");
+
+        document.getElementById("name").value="";
+        document.getElementById("price").value="";
+        document.getElementById("specs").value="";
+        document.getElementById("image").value="";
+    };
+
+    reader.readAsDataURL(file);
+}
+
+function renderProducts(){
+
+    let filtered =
+        products.filter(p => p.category === currentCategory);
+
+    let html = "";
+
+    if(filtered.length === 0){
+        html = "<p>No products available.</p>";
+    }
+
+    filtered.forEach(p => {
+
+        html += `
+        <div class="product-card">
+            <img src="${p.image}">
+            <div class="content">
+                <h3>${p.name}</h3>
+                <p>${p.price}</p>
+                <small>${p.specs}</small>
+            </div>
+        </div>
+        `;
+    });
+
+    productList.innerHTML = html;
+}
+
+function sendMessage(e){
+    e.preventDefault();
+    alert("Message sent successfully!");
+}
+
+</script>
+
+</body>
+</html>
+
+Important: This HTML version stores products only in browser memory. When you refresh the page, products disappear. If you want products to remain permanently, I can create a versio
